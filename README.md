@@ -19,6 +19,6 @@ SwipeVerse, a web3 alternative to web2 social/dating applications.
 </tr>
 
 ## Diagram
-![SwipeVerse](img/SwipeVerse-diagram.png)
+![SwipeVerse](img/SwipeVerse.png)
 
 ## License
