@@ -17,6 +17,7 @@ SwipeVerse, a web3 alternative to web2 social/dating applications.
 <td>contract_address</td>
 <td>contract_address</td>
 </tr>
+</table>
 
 ## Diagram
 ![SwipeVerse](img/SwipeVerse.png)
