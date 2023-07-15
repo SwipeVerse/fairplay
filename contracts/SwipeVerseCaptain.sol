@@ -13,9 +13,11 @@ interface ISwipeVerseProfile {
 contract SwipeVerseCaptain is SwipeVX {
 
     uint SWIPE_RIGHT_FEE;
+    address SWIPEVX_WALLET;
 
-    constructor(uint swipeFee) {
-        SWIPE_RIGHT_FEE=swipeFee;
+    constructor(uint swipeFee, address swipeVXWallet) {
+        SWIPE_RIGHT_FEE = swipeFee;
+        SWIPEVX_WALLET = swipeVXWallet;
     }
 
     mapping(address=>address=>uint) public matchPool;
@@ -33,12 +35,14 @@ contract SwipeVerseCaptain is SwipeVX {
     }
 
     // swipe right pool txn
+    function swipeRightBulk() public {}
 
     // match
-    function match(address contractAddr) public {
+    function match(address contractAddr, address sender, address receiver) public {
         result = ISwipeVerseProfile(contractAddr).match();
+        // send the tokens back to SwipeVX wallet
+        transferFrom();
         return result;
     }
 
-    // 
 }
