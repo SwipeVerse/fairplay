@@ -38,15 +38,25 @@ async function main(): Promise<void> {
     await swipeVXCapt.disburse(Mike);
     await swipeVXCapt.disburse(Jai);
     const balOwner = await swipeVXCapt.connect(SwipeVXWallet).getBalance()
-    const balMike = await swipeVXCapt.connect(Mike).getBalance()
-    const balJai = await swipeVXCapt.connect(Jai).getBalance()
+    let balMike = await swipeVXCapt.connect(Mike).getBalance()
+    let balJai = await swipeVXCapt.connect(Jai).getBalance()
 
-    console.log('Owner Balance ', balOwner)
-    console.log('Mike Balance ', balMike)
-    console.log('Jai Balance ', balJai)
+    console.log('Owner Balance ', balOwner,' address ',SwipeVXWallet.address)
+    console.log('Mike Balance ', balMike,' address ',Mike.address)
+    console.log('Jai Balance ', balJai,' address ',Jai.address)
 
     swipeVXCapt.connect(Mike).swipeRight(MikeNFT.getAddress(), Jai);
+    console.log("===== After swipe right =====")
+    balMike = await swipeVXCapt.connect(Mike).getBalance()
+    console.log('Mike Balance ', balMike,' address ',Mike.address)
     swipeVXCapt.connect(Jai).swipeRight(JaiNFT.getAddress(), Mike);
+
+    balMike = await swipeVXCapt.connect(Mike).getBalance()
+    balJai = await swipeVXCapt.connect(Jai).getBalance()
+
+    console.log('===== After match =====')
+    console.log('Mike Balance ', balMike,' address ',Mike.address)
+    console.log('Jai Balance ', balJai,' address ',Jai.address)
 }
 
 // We recommend this pattern to be able to use async/await everywhere

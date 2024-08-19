@@ -14,7 +14,8 @@ contract Fairplay is ERC721, ERC721URIStorage, Ownable {
     Counters.Counter private _tokenIdCounter;
 
     constructor(string memory name, uint dob, Gender gender, uint last_location ) ERC721("John Doe", "johnydoe") {
-        addUser(name, dob, gender, last_location);
+        // addUser(name, dob, gender, last_location);
+        // delegate call to adduser
     }
 
     enum Gender {

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 
 // Uncomment this line to use console.log
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 import  "./SwipeVX.sol";
 
@@ -46,14 +46,20 @@ contract SwipeVerseCaptain is SwipeVX {
     function makeMatch(address contractAddr, address sender, address receiver) public {
         ISwipeVerseProfile(contractAddr).makeMatch(contractAddr, sender, receiver);
         // send the tokens back to SwipeVX wallet
+        approveByAdmin(receiver, sender, SWIPE_RIGHT_FEE);
+        uint allownce_amt = allowance(receiver, SWIPEVX_WALLET);
+        console.log("Receiver Addr ", receiver, " Amt ", allownce_amt);
+        console.log("Swipe right fee ", SWIPE_RIGHT_FEE);
         transferFrom(receiver, SWIPEVX_WALLET, SWIPE_RIGHT_FEE);
+        transfer(SWIPEVX_WALLET, SWIPE_RIGHT_FEE);
+        // transferFrom(receiver, SWIPEVX_WALLET, SWIPE_RIGHT_FEE);
     }
 
     // disburse
     function disburse(address receiver) public {
         mint(receiver, DAILY_DISBURSE_AMT);
-        allowance(receiver, SWIPEVX_WALLET);
-        approve(SWIPEVX_WALLET, DAILY_DISBURSE_AMT);
+        approveByAdmin(receiver, SWIPEVX_WALLET, DAILY_DISBURSE_AMT);
+        // console.log("Receiver Addr ", receiver);
     }
 
     // get balance

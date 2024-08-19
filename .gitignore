@@ -5,6 +5,11 @@ coverage.json
 typechain
 typechain-types
 
+#ipfs files
+images.json
+profile.json
+CIDs.json
+
 # Hardhat files
 cache
 artifacts

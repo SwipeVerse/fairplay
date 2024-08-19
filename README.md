@@ -22,4 +22,12 @@ SwipeVerse, a web3 alternative to web2 social/dating applications.
 ## Diagram
 ![SwipeVerse](img/SwipeVerse.png)
 
+## Usage
+
+### Development
+- Deploy `SwipeVX.sol`
+- Deploy `SwipeVerseCaptain.sol`
+- Deploy `NFTtemplate.sol`
+
+
 ## License
