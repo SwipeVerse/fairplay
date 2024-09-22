@@ -3,79 +3,122 @@ pragma solidity ^0.8.9;
 
 // Uncomment this line to use console.log ..
 // import "hardhat/console.sol";
-
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract FairplayUser is ERC721URIStorage, Ownable {
+contract Fairplay is ERC721, ERC721URIStorage, Ownable {
+    using Counters for Counters.Counter;
+
+    Counters.Counter private _tokenIdCounter;
+
+    constructor(string memory name, uint dob, Gender gender, uint last_location ) ERC721("John Doe", "johnydoe") {
+        // addUser(name, dob, gender, last_location);
+        // delegate call to adduser
+    }
+
     enum Gender {
         Male, // 0
         Female, // 1
         Other // 2
     }
 
-    uint256 swTokenId;
-    string swName; // short name (up to 32 bytes)
-    uint swDOB; //  uint date = 1638352800; // 2012-12-01 10:00:00
-    string swImagesURI; 
-    Gender swGender; // Male/Female/Other; 0/1/2
-    uint swLastLocation; // https://stackoverflow.com/questions/8285599/
+    struct player {
+        address addr;
+        string name; // short name (up to 32 bytes)
+        uint dob; //  uint date = 1638352800; // 2012-12-01 10:00:00
+        Gender gender; // Male/Female/Other; 0/1/2
+        uint last_location; // https://stackoverflow.com/questions/8285599/
+        string uri;
+    }
 
-    constructor(address initialOwner)
-       ERC721("SwipeVerse", "SWX")
-        Ownable()
-        // call captain contract
-        // make a delegate call to adduser
-        // ERC721("TEst");
-    {}
+    struct matchHistory {
+        uint time;
+        string eventType;
+        address from;
+        address to;
+    }
 
-    function safeMint(address to, uint256 tokenId, string memory uri)
-        public
-        onlyOwner
-    {
-        swTokenId = tokenId;
+    mapping(address => player) public users;
+    mapping(address => address[]) public match_pool_users;
+    mapping(address => matchHistory) public matches;
+    // mapping(address => bool) public is_added;
+
+    event AddUser(
+        address indexed player_addr,
+        string name,
+        uint dob,
+        Gender gender,
+        uint location,
+        string uri
+    );
+
+    function getLastLocation(address addr) public view returns (uint) {
+        return users[addr].last_location;
+    }
+
+    function setLastLocation(uint last_location) public {
+        users[msg.sender].last_location = last_location;
+    }
+
+    function getUser() public view returns (player memory) {
+        return users[msg.sender];
+    }
+
+    function addUser(
+        string memory name,
+        uint dob,
+        Gender gender,
+        uint last_location
+    ) public {
+        // require(is_added[msg.sender] != true);
+        users[msg.sender] = player({
+            addr: msg.sender,
+            name: name,
+            dob: dob,
+            gender: gender,
+            last_location: last_location,
+            uri: ''
+        });
+        // is_added[msg.sender] = true;
+        emit AddUser(msg.sender, name, dob, gender, last_location, '');
+    }
+
+    function _baseURI() internal pure override returns (string memory) {
+        return "https://example.com/nft/"; // https://ipfs.io/ipfs/QmPataWfcgTemUsiZczuZUdpdhrs2ZxGvx5DAnwHuktayM
+    }
+
+    function safeMint(address to, string memory uri) public onlyOwner {
+        uint256 tokenId = _tokenIdCounter.current();
+        _tokenIdCounter.increment();
         _safeMint(to, tokenId);
-
-        // contains basic details like name, description/bio of profile;
-        // details that should be allowed to update once in 30 days
         _setTokenURI(tokenId, uri);
-    }
-
-    function updateImageURI(string memory uri) public onlyOwner{
-        swImagesURI = uri;
-    }
-
-    // should be allowed to update once in 30 days
-    function updateTokenURI(uint256 tokenId, string memory uri) public onlyOwner{
-        _setTokenURI(tokenId, uri);
-    }
-
-    function getSwTokenId() public view returns(uint256) {
-        return swTokenId;
-    }
-
-    function getImagesURI() public view returns(string memory) {
-        return swImagesURI;
     }
 
     // The following functions are overrides required by Solidity.
+    function _burn(
+        uint256 tokenId
+    ) internal override(ERC721, ERC721URIStorage) {
+        super._burn(tokenId);
+    }
 
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override(ERC721URIStorage)
-        returns (string memory)
-    {
+    function tokenURI(
+        uint256 tokenId
+    ) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC721URIStorage)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC721URIStorage) returns (bool) {
         return super.supportsInterface(interfaceId);
+    }
+
+    function makeMatch(address contractAddr, address sender, address receiver) public {
+        matches[contractAddr] = matchHistory({
+            time: 0,
+            eventType: 'Match',
+            from: sender,
+            to: receiver
+        });
     }
 }
