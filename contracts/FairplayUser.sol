@@ -23,6 +23,10 @@ contract FairplayUser is ERC721, ERC721URIStorage, Ownable {
     string swImagesURI; 
     Gender swGender; // Male/Female/Other; 0/1/2
     uint swLastLocation; // https://stackoverflow.com/questions/8285599/
+    
+    string tempImagesURI;
+    string tempProfileURI;
+    bool approveMint;
 
     mapping (address => bool) swipeList; // confirms if swiped on before
     mapping (address => bool) matchList; // confirms if the profile is in match list
@@ -34,7 +38,7 @@ contract FairplayUser is ERC721, ERC721URIStorage, Ownable {
     }
 
     modifier onlyModerator () {
-        require(isModerator(),"Only Moderator can do this.");
+        require(isModerator(),"Only Moderator can perform this action.");
         _;
     }
 
@@ -66,9 +70,17 @@ contract FairplayUser is ERC721, ERC721URIStorage, Ownable {
         return swipeList[_address]; // return true if swiped on
     }
 
-    function requestSafeMint() public onlyOwner {}
-    function requestProfileUpdate() public onlyOwner {}
-    function requestImagesUpdate() public onlyOwner {}
+    function requestSafeMint() public onlyOwner {
+        approveMint = true;
+    }
+    function requestProfileUpdate(string memory uri) public onlyOwner {
+        tempProfileURI = uri;
+        // emit event for update request
+    }
+    function requestImagesUpdate(string memory uri) public onlyOwner {
+        tempImagesURI = uri;
+        // emit event for update request
+    }
 
     function getSwTokenId() public view returns(uint256) {
         return swTokenId;
@@ -97,26 +109,35 @@ contract FairplayUser is ERC721, ERC721URIStorage, Ownable {
         return super.supportsInterface(interfaceId);
     }
 
-    // ---------- Moderator Area ----------
     // profile creation
-    function safeMint(address to, uint256 tokenId, string memory uri)
+    function safeMint(address to, uint256 tokenId)
         public
-        onlyModerator
+        onlyOwner
     {
+        require(approveMint == true, "Profile not approved by moderator yet");
         swTokenId = tokenId;
         _safeMint(to, tokenId);
 
         // contains basic details like name, description/bio of profile;
         // details that should be allowed to update once in 30 days
-        _setTokenURI(tokenId, uri);
+        _setTokenURI(tokenId, tempProfileURI);
+        approveMint = false;
+        tempProfileURI = "";
+    }
+
+    // approve mint
+    function approveMintProfile() public onlyModerator {
+        approveMint = true;
     }
 
     function updateImageURI(string memory uri) public onlyModerator {
         swImagesURI = uri;
+        tempImagesURI = "";
     }
 
     // should be allowed to update once in 30 days
     function updateTokenURI(uint256 tokenId, string memory uri) public onlyModerator {
         _setTokenURI(tokenId, uri);
+        tempProfileURI = "";
     }
 }
